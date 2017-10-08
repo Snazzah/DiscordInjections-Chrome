@@ -1,0 +1,93 @@
+{
+	"name": "__MSG_extName__",
+	"short_name": "DI",
+	"version": "0.1",
+	"manifest_version": 2,
+	"author": "Snazzah",
+	"description": "__MSG_extDescription__",
+	"icons": {
+		"128": "icon128.png"
+	},
+	"browser_action": {
+		"default_icon": {
+			"19": "icon19.png",
+			"38": "icon38.png"
+		},
+		"default_title": "__MSG_extName__",
+		"default_popup": "popup.html"
+	},
+	"background": {
+		"persistent": false,
+		"scripts": ["js/bg.js"]
+	},
+	"content_scripts": [
+		{
+			"matches": [
+				"https://discordapp.com/channels/*",
+				"https://*.discordapp.com/channels/*"
+			],
+			"run_at": "document_start",
+			"js": [
+				"js/discord.11.2.0.min.js",
+				"js/nodeutils.min.js",
+				"js/mutator.js",
+				"js/contentscript.js"
+			]
+		}
+	],
+	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self' https://storage.googleapis.com https://code.jquery.com",
+	"externally_connectable": {
+		"matches": [
+			"https://discordapp.com/channels/*",
+			"https://*.discordapp.com/channels/*"
+		]
+	},
+	"file_browser_handlers": [
+		{
+			"id": "upload",
+			"default_title": "Add CSS/JS to DiscordInjections",
+			"file_filters": [
+				"filesystem:*.js",
+				"filesystem:*.css"
+			]
+		}
+	],
+	"web_accessible_resources": [
+		"js/topscript.js",
+		"js/nodeutils.min.js",
+		"inject.css"
+	],
+	"default_locale": "en",
+	"permissions": [
+		"tabs",
+		"storage",
+		"unlimitedStorage",
+		"fileBrowserHandler",
+		"notifications",
+		"power",
+		"system.cpu",
+		"system.display",
+		"system.memory",
+		"system.storage",
+		"downloads",
+		"https://discordapp.com/channels/*",
+		"https://*.discordapp.com/channels/*"
+	],
+	"optional_permissions": [
+		"background",
+		"clipboardRead",
+		"clipboardWrite",
+		"contentSettings",
+		"contextMenus",
+		"cookies",
+		"debugger",
+		"history",
+		"idle",
+		"management",
+		"pageCapture",
+		"topSites",
+		"webNavigation",
+		"webRequest",
+		"webRequestBlocking"
+	]
+}

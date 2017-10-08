@@ -1,0 +1,7 @@
+node_modules/*
+nodeutils-webpack/node_modules/*
+nodeutils-webpack/zlib/*
+src/codemirror/*
+src/js/nodeutils.min.js
+src/js/discord.11.2.0.js
+src/js/discord.11.2.0.min.js

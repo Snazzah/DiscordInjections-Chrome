@@ -1,0 +1,20 @@
+{
+  "name": "discordinjections-chrome",
+  "version": "0.1.0",
+  "description": "A chrome extension for Discord Injections",
+  "author": "Snazzah",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DiscordInjections/Chrome.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DiscordInjections/Chrome/issues"
+  },
+  "scripts": {
+    "jshint": "jshint src"
+  },
+  "homepage": "https://discordinjections.xyz",
+  "devDependencies": {
+    "jshint": "^2.9.4"
+  }
+}

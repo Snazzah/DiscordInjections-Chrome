@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<link rel="stylesheet" type="text/css" href="codemirror/codemirror.css">
+		<link rel="icon" href="icon19.png">
+		<meta charset="utf-8"/>
+		<script type="text/javascript" src="js/localize.js"></script>
+		<script type="text/javascript" src="js/nodeutils.min.js"></script>
+		<script type="text/javascript" src="js/menu.js"></script>
+		<script type="text/javascript" src="codemirror/codemirror.js"></script>
+		<script type="text/javascript" src="codemirror/javascript/javascript.js"></script>
+		<script type="text/javascript" src="codemirror/css/css.js"></script>
+		<title data-i18n="__MSG_menuTitle__">Discord Injections s</title>
+	</head>
+	<body class="option-html">
+		<div class="status-row main-row discord">
+			<img draggable=false src="img/transparentIcon.png">
+			<div class="inline div-after-icon">
+				<h1 data-i18n="__MSG_extName__"></h1>
+				<p>https://discordinjections.xyz</p>
+			</div>
+		</div>
+		<div class="sidebar inline">
+			<h4 data-scroll-to=".content>h1-0" data-i18n="__MSG_settings__"></h4>
+			<h4 data-scroll-to=".content>h1-1" data-i18n="__MSG_themes__"></h4>
+			<h4 data-scroll-to=".content>h1-2" data-i18n="__MSG_plugins__"></h4>
+		</div>
+		<div class="content inline">
+			<h1 data-i18n="__MSG_settings__"></h1>
+			<div class="option-wrapper">
+				<h2 data-i18n="__MSG_optionSelUpdate__"></h2>
+				<div class="option">
+					<input data-optname="selectedUpdate" data-opttype="number"> <span data-i18n="__MSG_ms__"></span>
+				</div>
+			</div>
+			<div class="option-wrapper">
+				<h2 data-i18n="__MSG_optionAutoOver__"></h2>
+				<div class="option">
+					<input type="checkbox" data-optname="autoOverwrite" data-opttype="bool"><span></span>
+				</div>
+			</div>
+			<div class="option-wrapper">
+				<h2 data-i18n="__MSG_optionReloadDiscord__"></h2>
+				<div class="option">
+					<input type="checkbox" data-optname="reloadDiscord" data-opttype="bool"><span></span>
+				</div>
+			</div>
+			<h1 data-i18n="__MSG_themes__"></h1>
+			<div class="file-explorer themes-fe">
+				<div class="input-wrapper">
+					<input data-i18n-placeholder="__MSG_addThemeLink__">
+					<span data-i18n="__MSG_fsTooltip__"></span>
+					<!-- <button id="help"> -->
+					<button id="send"><input type="file"></button>
+				</div>
+				<div class="file-wrapper">
+				</div>
+			</div>
+			<h1 data-i18n="__MSG_plugins__"></h1>
+			<div class="file-explorer plugins-fe">
+				<div class="input-wrapper">
+					<input data-i18n-placeholder="__MSG_addPluginLink__">
+					<span data-i18n="__MSG_fsTooltip__"></span>
+					<!-- <button id="help"> -->
+					<button id="send"><input type="file"></button>
+				</div>
+				<div class="file-wrapper">
+				</div>
+			</div>
+		</div>
+		<div class="filedrop hide">
+			<div class="filedrop-inner">
+				<div class="filedrop-circle">
+					<img draggable=false src="img/transparentIcon.png">
+				</div>
+				<div class="text" data-i18n="__MSG_dragAndDrop__"></div>
+			</div>
+		</div>
+		<div class="toast-wrapper"></div>
+		<div class="code-editor hide">
+			<div class="code-editor-top">
+				<input data-i18n-placeholder="__MSG_filePlaceholder__">
+				<button id="done" data-i18n="__MSG_done__">Done</button>
+				<button id="discard" data-i18n="__MSG_discard__">Discard Changes</button>
+			</div>
+			<div class="code-editor-bottom">
+			</div>
+		</div>
+	</body>
+</html>
