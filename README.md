@@ -1,5 +1,5 @@
 <img align="left" src="https://i-need.discord.cards/ec6715.png" alt="logo">
-<h1><a href="https://github.com/DiscordInjections/DiscordInjections">Discord Injections Chrome Extension</a></h1>
+<h1><a href="https://github.com/DiscordInjections/DiscordInjections">Discord Injections</a> Chrome Extension</h1>
 <a href="https://chrome.google.com/webstore/detail/discord-injections/hfphbcbabihkfndceekinkeoflpkfjpj">Chrome Web Store</a><br>
 Maintained by <a href="https://github.com/Snazzah"><b>@Snazzah</b></a>
 <br>
