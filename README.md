@@ -1,6 +1,6 @@
 <img align="left" src="https://i-need.discord.cards/ec6715.png" alt="logo">
 <h1>Discord Injections Chrome Extension</h1>
-<a href="">Chrome Web Store</a><br>
+<a href="https://chrome.google.com/webstore/detail/discord-injections/hfphbcbabihkfndceekinkeoflpkfjpj">Chrome Web Store</a><br>
 Maintained by <a href="https://github.com/Snazzah"><b>@Snazzah</b></a>
 <br>
 <hr>
