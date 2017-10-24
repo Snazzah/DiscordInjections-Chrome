@@ -4,6 +4,7 @@
 	let DI = window.DI = {
 		extensionId: document.querySelector("#diTopScript").getAttribute("data-extension-id"),
 		log(...a){ console.log(`%c[DiscordInjections:TopScript]`, `color: #7289DA; font-weight: bold; `, ...a); },
+		debug(...a){ console.debug(`%c[DiscordInjections:TopScript]`, `color: #7289DA; font-weight: bold; `, ...a); },
 		loadClientMods(fn, name = Math.random().toString()) {
 	        return window.webpackJsonp([name], { [name]: fn }, [name]);
 	    }
@@ -11,7 +12,7 @@
 	DI.log('Started script, running extension ID', DI.extensionId);
 	DI.PORT = chrome.runtime.connect(DI.extensionId, { name: "di-topScript" });
 	DI.PORT.onMessage.addListener((data, port) => {
-		//DI.log('ext', data, port);
+		DI.debug('ext', data, port);
 		switch(data.action){
 			case 'ping':
 				DI.PORT.postMessage({ action: 'pong' });
