@@ -79,7 +79,7 @@ ${fileImports}`
     // Intercept Local Storage and initiate client.
 
     let localStorage = window.DI.localStorage = window.localStorage;
-    
+
     localStorage.constructor.prototype._setItem = localStorage.constructor.prototype.setItem;
     localStorage.constructor.prototype.setItem = (...args) => {
         try {
@@ -125,10 +125,6 @@ ${fileImports}`
         switch(data.action){
             case 'websocketConnect':
                 DI.CS.log('Websocket connection porting finished.');
-                DI.client.ws.connection.triggerReady();
-                break;
-            case 'websocketRecv':
-                DI.client.ws.connection.onMessage(data);
                 break;
         }
     });
@@ -887,29 +883,9 @@ ${fileImports}`
     let resolver = new Discord.ClientDataResolver(DI.client);
 
     class Helpers {
-
         constructor() {
             this.fakeIds = [];
             this.injectedURLs = [];
-            this.localChannelId = window.location.pathname.split('/')[3];
-
-            DI.StateWatcher.on('channelChanged', this.deleteLocalMessages.bind(this));
-        }
-
-        deleteLocalMessages() {
-            for (const id of this.fakeIds) {
-                let output = {
-                    d: {
-                        id,
-                        channel_id: this.localChannelId
-                    },
-                    t: 'MESSAGE_DELETE',
-                    op: 0
-                };
-                chrome.runtime.sendMessage({ action: 'websocketSend', data: output });
-            }
-            this.fakeIds = [];
-
             this.localChannelId = window.location.pathname.split('/')[3];
         }
 
@@ -932,43 +908,38 @@ ${fileImports}`
             obj.username = obj.username || 'Clyde';
             obj.attachments = obj.attachments || [];
             obj.embeds = obj.embeds || [];
-            if (!obj.content && obj.attachments.length === 0 && obj.embeds.length === 0)
+            if (!obj.content && obj.attachments.length == 0 && obj.embeds.length == 0)
                 throw new Error('No content, attachment, or embed');
 
             let id = this.generateSnowflake();
-            this.fakeIds.push(id);
             let output = {
-                d: {
-                    nonce: this.generateSnowflake(),
-                    id,
-                    attachments: obj.attachments,
-                    tts: false,
-                    embeds: obj.embeds,
-                    timestamp: Date.now(),
-                    mention_everyone: false,
-                    pinned: false,
-                    edited_timestamp: null,
-                    author: {
-                        username: obj.username,
-                        discriminator: '0000',
-                        id: obj.username,
-                        bot: true
-                    },
-                    mention_roles: [],
-                    content: obj.content,
-                    channel_id: DI.client.selectedChannel.id,
-                    mentions: [],
-                    type: 0
-                },
-                t: 'MESSAGE_CREATE',
-                op: 0
-            };
-
+                        nonce: this.generateSnowflake(),
+                        id,
+                        attachments: obj.attachments,
+                        tts: false,
+                        embeds: obj.embeds,
+                        timestamp: Date.now(),
+                        mention_everyone: false,
+                        pinned: false,
+                        edited_timestamp: null,
+                        author: {
+                            username: obj.username,
+                            discriminator: '0000',
+                            id: "1", // we want a clyde effect
+                            avatar: "clyde",
+                            bot: true
+                        },
+                        mention_roles: [],
+                        content: obj.content,
+                        channel_id: window.DI.client.selectedChannel.id,
+                        mentions: [],
+                        type: 0
+                    }
             return output;
         }
 
         sendClyde(message) {
-            return this.sendLog('Clyde', message, undefined);
+            chrome.runtime.sendMessage({ action: 'sendAsClyde', directedTo: 'topscript', channel: window.DI.client.selectedChannel.id, message: message });
         }
 
         // Please refrain from using this, this should be reserved for base DiscordInjections notifications only
@@ -977,8 +948,7 @@ ${fileImports}`
         }
 
         sendLog(name, message, avatarURL = '/assets/f78426a064bc9dd24847519259bc42af.png') {
-            if (!this.localChannelId)
-                this.localChannelId = window.location.pathname.split('/')[3];
+            if (!this.localChannelId) this.localChannelId = window.location.pathname.split('/')[3];
             let base = {
                 username: name,
                 content: message
@@ -990,24 +960,10 @@ ${fileImports}`
                 }
             }
 
-            chrome.runtime.sendMessage({ action: 'websocketSend', data: this.constructMessage(base) }, () => {
-                let elem = document.querySelector('.messages .message-group:last-child');
-                let className = 'di-clydelike-' + name.replace(/\s/g, '-').replace(/[^\w-]+/g, '');
-                if (!elem.classList.contains(className)) {
-                    elem.classList.add(className);
-                    elem.classList.add('is-local-bot-message');
-                    document.querySelector(`.${className}:last-child .avatar-large`).setAttribute('style', `background-image: url('${avatarURL}');`);
-
-                    let delElem = DI.parseHTML(`<div class="local-bot-message">Only you can see this —
-                     <a>
-                     delete this message</a>.</div>`).childNodes[0];
-
-                     delElem.childNodes[1].onclick = () => DI.Helpers.deleteLocalMessages();
-                    document.querySelector(`.${className}:last-child .comment`).appendChild(delElem);
-                } else {
-                    document.querySelector(`.${className}:last-child .local-bot-message a`).innerHTML = 'delete these messages';
-                }
-                document.querySelector('.messages').scrollTop = elem.offsetTop;
+            chrome.runtime.sendMessage({ action: 'fakeMessageRaw', directedTo: 'topscript', channel: window.DI.client.selectedChannel.id, message: this.constructMessage(base) }, () => {
+                const className="is-local-bot-message"
+                let elem = document.querySelector(`.${className}:last-child .avatar-large`);
+                elem.setAttribute('style', `background-image: url('${avatarURL}');`);
             });
         }
 

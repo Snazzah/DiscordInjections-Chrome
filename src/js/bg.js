@@ -14,9 +14,10 @@ class BGPort {
 					this.id = port.sender.tab.id;
 					chrome.tabs.sendMessage(port.sender.tab.id, { action: 'websocketConnect' });
 					break;
-				case 'websocketRecv':
+				default:
 					ports[port.sender.tab.id] = this;
 					this.id = port.sender.tab.id;
+					data.from = 'topscript';
 					chrome.tabs.sendMessage(port.sender.tab.id, data);
 					break;
 			}
@@ -44,14 +45,11 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
 		case 'identify':
 			res(sender);
 			break;
-		case 'websocketSend':
-			console.log(ports[sender.tab.id]);
-			ports[sender.tab.id].port.postMessage(req);
-			break;
 		case 'platform':
 			chrome.runtime.getPlatformInfo(req);
 			break;
 	}
+	if(req.directedTo === 'topscript') ports[sender.tab.id].port.postMessage(req);
 });
 
 chrome.storage.local.get(data => {

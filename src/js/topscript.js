@@ -11,13 +11,17 @@
 	DI.log('Started script, running extension ID', DI.extensionId);
 	DI.PORT = chrome.runtime.connect(DI.extensionId, { name: "di-topScript" });
 	DI.PORT.onMessage.addListener((data, port) => {
-		DI.log('ext', data, port);
+		//DI.log('ext', data, port);
 		switch(data.action){
 			case 'ping':
 				DI.PORT.postMessage({ action: 'pong' });
 				break;
-			case 'websocketSend':
-				DI.WS.onmessage({ data: JSON.stringify(data.data) });
+			case 'sendAsClyde':
+				DI._sendAsClydeRaw(data.channel, data.message);
+				break;
+			case 'fakeMessageRaw':
+				DI._fakeMessageRaw(data.channel, data.message);
+				break;
 		}
 	});
 
@@ -43,4 +47,32 @@
 	}
 
 	window.WebSocket = RoutingWebSocket;
+
+	// Add things only top script can provide
+
+	window.onload = () => {
+		DI.log('Document has loaded.')
+		webpackJsonp([],{[a]:(_, __, d) => {
+			let i = 0
+			const tick = () => {
+				if (DI._sendAsClydeRaw && DI._fakeMessageRaw) return clearInterval(tick)
+				let r;try{r=d(i)}catch(e){return};
+				for (let key in r) {
+					if (key === "sendBotMessage" && typeof r[key] === "function") {
+						DI.log("Found sendBotMessage")
+						DI._sendAsClydeRaw = r[key].bind(r)
+					}
+					if (key === "receiveMessage" && typeof r[key] === "function") {
+						DI.log("Found receiveMessage")
+						DI._fakeMessageRaw = r[key].bind(r)
+					}
+				}
+				i++;
+				if (i === 7000) clearInterval(tick)
+			}
+			setInterval(tick, 5)    
+
+			}
+		},[a]);
+	};
 }());
