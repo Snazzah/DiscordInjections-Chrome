@@ -186,7 +186,7 @@ let handleFiles = files => {
 	});
 }
 
-chrome.fileBrowserHandler.onExecute.addListener(function(id, details) {
+if(chrome.fileBrowserHandler) chrome.fileBrowserHandler.onExecute.addListener(function(id, details) {
 	if (id === 'upload') {
 		var fileEntries = details.entries;
 		let files = [];

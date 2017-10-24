@@ -35,12 +35,5 @@ This extension brings modification to your Discord WebApp.
 ## Adding a new D.JS version
 1. Download the [**webpack build**](https://github.com/hydrabolt/discord.js/tree/webpack) of discord.js.
 2. Place it in the `js` folder of the extension folder.
-3. Edit the webpack file to add `PacketManager` and `ClientDataResolver` to the exports.
-	- Find `PacketManager` by searching for `class WebSocketPacketManager`.
-	- Find webpack require number and remember it.  
-	![](https://i-need.discord.cards/c14e61.png)
-	- Find `ClientDataResolver` by searching for `class ClientDataResolver {` and get the require number.
-	- Search for `Client: __` and add like so:  
-	![](https://i-need.discord.cards/086976.png)
-4. `manifest.json` Replace `discord.xx.x.x.js` with the filename in `manifest.json`.
-5. Reload extension.
+3. In `manifest.json`, replace `discord.xx.x.x.js` with the filename in `manifest.json`.
+4. Reload extension.

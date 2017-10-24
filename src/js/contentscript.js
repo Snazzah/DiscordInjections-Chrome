@@ -35,7 +35,11 @@ chrome.storage.local.get(data => {
 
     		debug(...a){
     			console.debug(`%c[DiscordInjections]`, `color: #7289DA; font-weight: bold; `, ...a);
-    		}
+    		},
+
+            error(...a){
+                console.error(`%c[DiscordInjections]`, `color: #7289DA; font-weight: bold; `, ...a);
+            }
     	},
 
         reloadImports(){
@@ -72,10 +76,10 @@ ${fileImports}`
     //      \/_/   \/_/ \/_/ \/_____/   \/_____/   \/_____/     \/_/   \/_/   \/_/ \/_/   \/_____/    //
     //                                                                                                //
 
-    // Intercept Local Storage
+    // Intercept Local Storage and initiate client.
 
     let localStorage = window.DI.localStorage = window.localStorage;
-
+    
     localStorage.constructor.prototype._setItem = localStorage.constructor.prototype.setItem;
     localStorage.constructor.prototype.setItem = (...args) => {
         try {
@@ -92,94 +96,9 @@ ${fileImports}`
         localStorage._setItem(...args);
     };
 
-    // Bridge WebSocket and Client.
-
-    class BridgedWebSocketManager {
-        constructor(client) {
-            this.client = client;
-
-            this.connection = new BridgedWebSocket(this);
-        }
-
-        send(d) { 
-            //chrome.runtime.sendMessage({ action: 'websocketSend', data: d});
-            DI.CS.log('Discord.JS attempted to send data', d);
-        }
-
-        debug(message) {
-            if (message instanceof Error) message = message.stack;
-            return DI.CS.debug(`[WebsocketManager] ${message}`);
-        }
-
-        // dummy functions to fool discord.js
-        connect() { } // eslint-disable-line no-empty-function
-        destroy() { } // eslint-disable-line no-empty-function
-        heartbeat() { } // eslint-disable-line no-empty-function
-    }
-
-    class BridgedWebSocket {
-        constructor(manager) {
-            this.client = manager.client;
-            this.manager = manager;
-            this.packetManager = new Discord.PacketManager(this);
-            this.disabledEvents = [];
-            this.sequence = -1;
-        }
-
-        onMessage(event) {
-            let data = event.data;
-            try{
-                if(typeof data === 'object' && data.type === 'Buffer') data = NodeUtils.zlib.inflateSync(NodeUtils.Buffer.from(data)).toString();
-                data = JSON.parse(data);
-            }catch(e){
-                DI.CS.log('Failed to parse data packet', e, data);
-                return;
-            }
-            this.client.emit('raw', data);
-            this.packetManager.handle(data);
-        }
-
-        send(d) { 
-            if([3,4,8].includes(d.op)) chrome.runtime.sendMessage({ action: 'websocketSend', data: d });
-            /*
-                3: Status Update
-                4: Voice State Update
-                8: Request Guild Members
-            */
-            DI.CS.log('Discord.JS attempted to send data', d);
-        }
-
-        debug(message) {
-            if (message instanceof Error) message = message.stack;
-            return DI.CS.debug(`[Websocket] ${message}`);
-        }
-
-        // dummy functions to fool discord.js
-        connect() { } // eslint-disable-line no-empty-function
-        destroy() { } // eslint-disable-line no-empty-function
-        heartbeat() { } // eslint-disable-line no-empty-function
-        setSequence(s) { this.sequence = s > this.sequence ? s : this.sequence; }
-        checkIfReady() { this.triggerReady(); }
-        triggerReady() {
-            this.status = Discord.Constants.Status.READY;
-            this.client.emit(Discord.Constants.Events.READY);
-            this.packetManager.handleQueue();
-        }
-    }
-
     class BridgedClient extends Discord.Client {
         constructor(options) {
-            const odp = Object.defineProperty;
-            Object.defineProperty = (i, n, d) => {
-                if (n === 'token') {
-                    return;
-                }
-
-                return odp(i, n, d);
-            }
             super(options);
-            Object.defineProperty = odp;
-            this.ws = new BridgedWebSocketManager(this);
             let lastpath = window.location.pathname;
             this.setInterval(() => {
                 if (lastpath === window.location.pathname) return;
@@ -193,19 +112,10 @@ ${fileImports}`
                 lastpath = window.location.pathname;
             }, window.DI_DATA.options.selectedUpdate);
         }
-
-        get token() {
-            try {
-                return window.DI.localStorage.getItem('token').replace(/"/g, '');
-            } catch (err) {
-                return null;
-            }
-        }
-
-        set token(x) { } // eslint-disable-line no-empty-function
     }
 
     DI.client = new BridgedClient();
+    DI.client.login(window.DI.localStorage.getItem('token').replace(/"/g, ''));
     DI.client.on('debug', DI.CS.debug);
     DI.client.on('ready', ()=>DI.CS.debug('Discord.JS send ready event'));
 
