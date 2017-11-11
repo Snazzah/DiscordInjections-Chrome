@@ -1,0 +1,21 @@
+{
+    "1.1.0": {
+        "New Stuff": [
+            "I stole Ratismal's changelog. Whatcha' you gonna do about it?",
+            "The changelog will display the first time you boot up on a new version, or any time you use the 'changelog' command."
+        ],
+        "Fixes": [
+            "Clyde/Fake messages <em>again</em>"
+        ]
+    },
+    "1.0.0": {
+        "Changes": [
+            "Topscript uses <code>console.debug</code> for a less messier console"
+        ],
+        "Fixes": [
+            "The fileBrowser error that shows in console",
+            "Clyde/Fake messages",
+            "Websocket errors"
+        ]
+    }
+}

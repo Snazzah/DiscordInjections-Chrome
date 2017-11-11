@@ -1,7 +1,7 @@
 {
 	"name": "__MSG_extName__",
 	"short_name": "DI",
-	"version": "1.0",
+	"version": "1.1.0",
 	"manifest_version": 2,
 	"author": "Snazzah",
 	"description": "__MSG_extDescription__",
@@ -55,7 +55,8 @@
 	"web_accessible_resources": [
 		"js/topscript.js",
 		"js/nodeutils.min.js",
-		"inject.css"
+		"inject.css",
+		"changelog.json"
 	],
 	"default_locale": "en",
 	"permissions": [

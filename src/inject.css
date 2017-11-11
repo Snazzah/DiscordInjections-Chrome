@@ -1,3 +1,5 @@
+/* Command Handler */
+
 .di-autocomplete {
     display: block !important;
 }
@@ -24,4 +26,51 @@
 
 .di-autocomplete-header-label {
     display: inline-block !important;
+}
+
+/* Changelog */
+
+.DI-modal {
+    position: fixed; 
+    height: 100%; 
+    width: 100%; 
+    top: 0; 
+    left: 0; 
+    z-index: 9999;
+}
+
+.callout-backdrop {
+    opacity: 0; 
+    background-color: black; 
+    height: 100%; 
+    width: 100%;
+    transition-duration: 0.2s;
+}
+
+.DI-modal-inner {
+    transform: scale(0);
+    animation: 0.2s 1 modal-contract;
+}
+
+.DI-modal-inner.expanded {
+    transform: scale(1);
+    animation: 0.3s 1 modal-expand cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modal-expand {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes modal-contract {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(0);
+    }
 }

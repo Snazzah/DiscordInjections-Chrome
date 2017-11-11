@@ -154,6 +154,7 @@ ${fileImports}`
         DI.StateWatcher = new DI.Structures.StateWatcher();
         DI.Helpers = new DI.Structures.Helpers();
         DI.CommandHandler = new DI.Structures.CommandHandler();
+        DI.Changelog = new DI.Structures.Changelog();
 
         window.DI_DATA.plugins.filter(p => !p.content).map(p => fetch(p.url).then(r => r.text()).then(eval)); // eslint-disable-line unsafe-eval
         window.DI_DATA.plugins.filter(p => p.content).map(p => eval(p.content)); // eslint-disable-line unsafe-eval
@@ -413,6 +414,7 @@ ${fileImports}`
             this.hookCommand(new Command(null, { name: 'reload', info: 'Reloads a plugin.', usage: '<name>...', func: this.reloadPlugin }));
             this.hookCommand(new Command(null, { name: 'setprefix', info: 'Sets the custom command prefix.', usage: '<prefix>', func: this.commandSetPrefix.bind(this) }));
             this.hookCommand(new Command(null, { name: 'echo', info: 'Is there an echo in here?', usage: '<text>', func: this.commandEcho }));
+            this.hookCommand(new Command(null, { name: 'changelog', info: 'Shows the changelog.', func: this.commandChangelog }));
 
             document.addEventListener('input', this.onInput.bind(this));
             document.addEventListener('keydown', this.onKeyDown.bind(this));
@@ -443,6 +445,7 @@ ${fileImports}`
                 DI.Helpers.sendDI(`Reloaded the plugin${plugins.length > 1 ? 's' : ''} ${plugins.join(', ')}.`);
         }
         commandEcho(args) { DI.Helpers.sendLog(DI.client.user.username, args.join(' '), DI.client.user.avatarURL); }
+        commandChangelog() { DI.Changelog.post(true); }
         commandSetPrefix(args) {
             let slashWarning = false;
             let prefix = '//';
@@ -704,19 +707,19 @@ ${fileImports}`
             if (command.plugin && typeof command.plugin.color === 'number') color = command.plugin.color.toString(16);
             else if (command.plugin) color = command.plugin.color;
             let ctxfrg = DI.parseHTML(`<div class="autocompleteRowVertical-3_UxVA autocompleteRow-31UJBI command">
-                <div class="selector-nbyEfM selectable-3iSmAf">
-    <div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyStart-2yIZo0 alignCenter-3VxkQP noWrap-v6g9vO content-249Pr9"
-    style="flex: 1 1 auto;">
-    <img class="icon-3XfMwL" src="https://discordinjections.xyz/img/logo-alt-nobg.svg">
-    <div class="marginLeft4-3RAvyQ">${command.name}</div>
-    <div class="marginLeft4-3RAvyQ primary400-1OkqpL">${command.usage}</div>
+            <div class="selector-nbyEfM selectable-3iSmAf">
+<div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyStart-2yIZo0 alignCenter-3VxkQP noWrap-v6g9vO content-249Pr9"
+style="flex: 1 1 auto;">
+<img class="icon-3XfMwL" src="https://discordinjections.xyz/img/logo-alt-nobg.svg">
+<div class="marginLeft4-3RAvyQ">${command.name}</div>
+<div class="marginLeft4-3RAvyQ primary400-1OkqpL">${command.usage}</div>
 
-    <div class="ellipsis-1MzbWB primary400-1OkqpL di-autocomplete-commandinfo" style="flex: 1 1 auto";>${command.plugin ?
-            `<span class='command-plugin-tag${isDark(h2rgb(color)) ? ' dark' : ''}' style="color: #${color};border-color: #${command.plugin.color};">
-            ${command.plugin.name}</span> - `
-            : ''
-    }${command.info}</div>
-    </div></div></div>`);
+<div class="ellipsis-1MzbWB primary400-1OkqpL di-autocomplete-commandinfo" style="flex: 1 1 auto";>${command.plugin ?
+        `<span class='command-plugin-tag${isDark(h2rgb(color)) ? ' dark' : ''}' style="color: #${color};border-color: #${command.plugin.color};">
+        ${command.plugin.name}</span> - `
+        : ''
+}${command.info}</div>
+</div></div></div>`);
 
             ctxfrg.childNodes[0].childNodes[0].onmouseover = () => DI.CommandHandler.onHover(ctxfrg.querySelector('.selectable-3iSmAf'));
             ctxfrg.childNodes[0].childNodes[0].onclick = () => DI.CommandHandler.makeSelection(command.name);
@@ -890,9 +893,7 @@ ${fileImports}`
         }
 
         createElement(text) {
-            let div = document.createElement('div');
-            div.innerHTML = text;
-            return div.childNodes[0];
+            return document.createRange().createContextualFragment(text);
         }
 
         sanitize(message) {
@@ -913,32 +914,42 @@ ${fileImports}`
 
             let id = this.generateSnowflake();
             let output = {
-                        nonce: this.generateSnowflake(),
-                        id,
-                        attachments: obj.attachments,
-                        tts: false,
-                        embeds: obj.embeds,
-                        timestamp: Date.now(),
-                        mention_everyone: false,
-                        pinned: false,
-                        edited_timestamp: null,
-                        author: {
-                            username: obj.username,
-                            discriminator: '0000',
-                            id: "1", // we want a clyde effect
-                            avatar: "clyde",
-                            bot: true
-                        },
-                        mention_roles: [],
-                        content: obj.content,
-                        channel_id: window.DI.client.selectedChannel.id,
-                        mentions: [],
-                        type: 0
-                    }
+                nonce: this.generateSnowflake(),
+                id,
+                attachments: obj.attachments,
+                tts: false,
+                embeds: obj.embeds,
+                timestamp: Date.now(),
+                mention_everyone: false,
+                pinned: false,
+                edited_timestamp: null,
+                author: {
+                    username: obj.username,
+                    discriminator: '0000',
+                    id: '1', // we want a clyde effect
+                    avatar: 'clyde',
+                    bot: true
+                },
+                mention_roles: [],
+                content: obj.content,
+                channel_id: window.DI.client.selectedChannel.id,
+                mentions: [],
+                type: 0
+            };
             return output;
         }
 
         sendClyde(message) {
+            let base = {
+                username: name,
+                content: message
+            };
+            if (typeof message === 'object') {
+                base.content = undefined;
+                for (let key in message) {
+                    base[key] = message[key];
+                }
+            }
             chrome.runtime.sendMessage({ action: 'sendAsClyde', directedTo: 'topscript', channel: window.DI.client.selectedChannel.id, message: message });
         }
 
@@ -965,6 +976,47 @@ ${fileImports}`
                 let elem = document.querySelector(`.${className}:last-child .avatar-large`);
                 elem.setAttribute('style', `background-image: url('${avatarURL}');`);
             });
+        }
+
+        createModal(content) {
+            const root = document.querySelector('#app-mount > div');
+
+            if (this._modal) this.destroyModal();
+
+            this._modal = this.createElement(`
+                <div class="theme-dark DI-modal">
+                    <div class="callout-backdrop" style="opacity: 0.85; background-color: black; transform: translateZ(0px);"></div>
+                    <div class="modal-2LIEKY" style="opacity: 1; transform: scale(1) translateZ(0px);">
+                        <div class="inner-1_1f7b">
+                            <div class="modal-3HOjGZ sizeMedium-1-2BNS">
+                                ${content}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+            this._modalBind = this.destroyModal.bind(this);
+            this._modal.querySelector('.callout-backdrop').addEventListener('click', this._modalBind);
+            if (!this._hasSetKeyListener) {
+                document.body.addEventListener('keyup', this._modalKeypress.bind(this));
+                this._hasSetKeyListener = true;
+            }
+            root.appendChild(this._modal);
+            this._modal = root.lastElementChild;
+        }
+
+        _modalKeypress(e) {
+            if (e.code === 'Escape') this.destroyModal();
+        }
+
+        destroyModal() {
+            if (this._modal) {
+                this._modal.childNodes[0].removeEventListener('click', this._modalBind);
+                document.body.removeEventListener('keyup', this._modalKeypress.bind(this));
+                this._modal.parentNode.removeChild(this._modal);
+                this._modal = null;
+                this._modalBind = null;
+            }
         }
 
         escape(s) {
@@ -1007,4 +1059,59 @@ ${fileImports}`
     }
 
     DI.Structures.Helpers = Helpers;
+
+    /* ----------------------------------------------------------------------------------------------------------------- */
+
+    class Changelog {
+        constructor() {
+            fetch(chrome.extension.getURL("changelog.json")).then(r => r.json()).then(c => {this.changelog = c; this.post()});
+        }
+
+        post(forced = false){
+            if (forced) { this._post(); return; }
+            let diNode = DI.localStorage.getItem('DI-DiscordInjections');
+            if (diNode === null) {
+                DI.localStorage.setItem('DI-DiscordInjections', JSON.stringify({ lastChangelog: pack.version }));
+                this._post();
+            } else {
+                diNode = JSON.parse(diNode);
+                if (!diNode.lastChangelog || diNode.lastChangelog !== DI.version) {
+                    diNode.lastChangelog = DI.version;
+                    this._post();
+                    DI.localStorage.setItem('DI-DiscordInjections', JSON.stringify(diNode));
+                }
+            }
+        }
+
+        _post(){
+            let output = [];
+            let keys = Object.keys(this.changelog).slice(0, 5);
+            for (const version of keys) {
+                output.push(`<h1 class="added-3Q7OGu title-1PW5Fd marginTop-4_cfcL marginTop20-3UscxH" ${version !== DI.version ? '' : 'style="margin-top: 0px !important"'}>Version ${version}</h1>`);
+                for (const key in this.changelog[version]) {
+                    let temp = '';
+                    temp = `<h5 class="titleDefault-1CWM9y title-3i-5G_ marginReset-3hwONl marginTop20-3UscxH weightMedium-13x9Y8 size16-3IvaX_ height24-2pMcnc flexChild-1KGW5q">${key}</h5>`;
+                    temp += '<ul>' + this.changelog[version][key].map(k => `<li>${k}</li>`).join('\n') + '</ul>';
+                    output.push(temp);
+                }
+            }
+
+            DI.Helpers.createModal(`<div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyStart-2yIZo0 alignCenter-3VxkQP noWrap-v6g9vO header-3sp3cE">
+    <div class="flexChild-1KGW5q" style="flex: 1 1 auto;">
+        <h4 class="h4-2IXpeI title-1pmpPr size16-3IvaX_ height20-165WbF weightSemiBold-T8sxWH defaultColor-v22dK1 defaultMarginh4-jAopYe marginReset-3hwONl">
+            DiscordInjections Changelog
+        </h4>
+        <div class="guildName-1u0hy7 small-3-03j1 size12-1IGJl9 height16-1qXrGy primary-2giqSn">Current Version: ${DI.version}</div>
+    </div>
+    <svg class="close-3ejNTg flexChild-1KGW5q DI-modal-close-button" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 12 12"><g fill="none" fill-rule="evenodd"><path d="M0 0h12v12H0"></path><path class="fill" fill="currentColor" d="M9.5 3.205L8.795 2.5 6 5.295 3.205 2.5l-.705.705L5.295 6 2.5 8.795l.705.705L6 6.705 8.795 9.5l.705-.705L6.705 6"></path></g></svg>
+</div>
+<div class="scrollerWrap-2uBjct content-1Cut5s scrollerThemed-19vinI themeGhostHairline-2H8SiW">
+    <div class="scroller-fzNley inner-tqJwAU content-3KEfmo">
+    ${output.join('\n')}
+</div></div> 
+`);
+        }
+    }
+
+    DI.Structures.Changelog = Changelog;
 });
