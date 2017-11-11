@@ -53,27 +53,24 @@
 
 	window.onload = () => {
 		DI.log('Document has loaded.')
-		webpackJsonp([],{[a]:(_, __, d) => {
-			let i = 0
-			const tick = () => {
-				if (DI._sendAsClydeRaw && DI._fakeMessageRaw) return clearInterval(tick)
-				let r;try{r=d(i)}catch(e){return};
-				for (let key in r) {
-					if (key === "sendBotMessage" && typeof r[key] === "function") {
-						DI.log("Found sendBotMessage")
-						DI._sendAsClydeRaw = r[key].bind(r)
+		DI.loadClientMods((m, e, r) => {
+			let i = 0, interval;
+		    let tick = () => {
+				if (DI._sendAsClydeRaw && DI._fakeMessageRaw) return clearInterval(interval);
+				let d; try { d = r.c[i].exports; } catch (e) { ++i; return; }
+				for (let key in d) {
+					if (key === 'sendBotMessage' && typeof d[key] === 'function') {
+						DI.log('Found sendBotMessage');
+						DI._sendAsClydeRaw = d[key].bind(d);
 					}
-					if (key === "receiveMessage" && typeof r[key] === "function") {
-						DI.log("Found receiveMessage")
-						DI._fakeMessageRaw = r[key].bind(r)
+					if (key === 'receiveMessage' && typeof d[key] === 'function') {
+						DI.log('Found receiveMessage');
+						DI._fakeMessageRaw = d[key].bind(d);
 					}
 				}
-				i++;
-				if (i === 7000) clearInterval(tick)
-			}
-			setInterval(tick, 5)    
-
-			}
-		},[a]);
+				if (++i >= 7000) return clearInterval(interval);
+			};
+			interval = setInterval(tick, 5);
+		});
 	};
 }());
